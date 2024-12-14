@@ -2,63 +2,147 @@ import { StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { Button, Overlay } from "@rneui/base";
 import { View } from "react-native";
+import { LifeBuoy } from "lucide-react-native";
 import { Mic } from "lucide-react-native";
 import { Smartphone } from "lucide-react-native";
 import { Camera } from "lucide-react-native";
 
-export default function HomeScreen() {
-  const [visible, setVisible] = useState(true);
+const Widget = () => {
+  const [visible, setVisible] = useState(false);
+  const [mic, setMic] = useState(false);
 
-  const toggleOverlay = () => {
-    setVisible(!visible);
-  };
+  function sendRequest(prompt: string) {
+    const url = 'http://192.168.7.64:8080/api/generate';
+  
+    const data = {
+      model: 'wnuczek',
+      prompt: prompt,
+      stream: false,
+    };
+  
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data.response);
+      })
+      .catch((error) => {
+        console.error(`Error: ${error.message}`);
+      });
+  }
+  
 
   return (
-    <Overlay
-      isVisible={visible}
-      style={styles.widget}
-      onBackdropPress={toggleOverlay}
-      backdropStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
-    >
+    <>
       <View
         style={{
           flex: 1,
-          gap: 5,
-          flexDirection: "row",
-          justifyContent: "space-evenly",
+          marginTop: 50,
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          backgroundColor: "transparent",
         }}
       >
         <Button
+          buttonStyle={{
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            marginLeft: 10,
+          }}
+          onPress={() => setVisible(true)}
+        >
+          <LifeBuoy color="white" size={23} />
+        </Button>
+      </View>
+      <Overlay
+        overlayStyle={styles.widget}
+        isVisible={visible}
+        onBackdropPress={() => {
+          setVisible(false);
+          setMic(false);
+        }}
+        backdropStyle={{ backgroundColor: "transparent" }}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            gap: 10,
+            backgroundColor: "transparent",
+          }}
+        >
+          <Button
+          style={styles.button}
+          buttonStyle={{
+            backgroundColor: mic ? "green" : "blue",
+            borderRadius: "100%",
+          }}
           onPress={() => {
-            console.log("Mic button pressed");
+            const newMicState = !mic;
+            setMic(newMicState);
+
+            if (newMicState) {
+              console.log("włączono");
+              // sendRequest("Start recording audio");
+            } else {
+              console.log("wyłączono");
+              sendRequest("How to start recording audio");
+            }
           }}
         >
           <Mic color="white" size={23} />
         </Button>
-        <Button
-          onPress={() => {
-            console.log("Smartphone button pressed");
-          }}
-        >
-          <Smartphone color="white" size={23} />
-        </Button>
-        <Button
-          onPress={() => {
-            console.log("Camera button pressed");
-          }}
-        >
-          <Camera color="white" size={23} />
-        </Button>
-      </View>
-    </Overlay>
+
+          <Button
+            style={styles.button}
+            buttonStyle={styles.buttonStyle}
+            onPress={() => {
+              console.log("Smartphone button pressed");
+            }}
+          >
+            <Smartphone color="white" size={23} />
+          </Button>
+          <Button
+            style={styles.button}
+            buttonStyle={styles.buttonStyle}
+            onPress={() => {
+              console.log("Camera button pressed");
+            }}
+          >
+            <Camera color="white" size={23} />
+          </Button>
+        </View>
+      </Overlay>
+    </>
   );
-}
+};
 
 const styles = StyleSheet.create({
+  button: {
+    width: 50,
+    height: 50,
+  },
+  buttonStyle: {
+    backgroundColor: "blue",
+    borderRadius: "100%",
+  },
   widget: {
-    position: "fixed",
-    top: 10, // Changed from 10 to 50
-    left: 50, // Changed from 20 to 50
-    transform: [{ translateX: 0 }, { translateY: 0 }],
+    top: 0,
+    left: 0,
+    backgroundColor: "transparent",
+    shadowColor: "transparent",
   },
 });
+
+export default Widget;
