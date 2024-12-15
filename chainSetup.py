@@ -10,7 +10,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 
 # LLM and embeddings setup
 llm = Ollama(model="wnuczek", base_url="http://127.0.0.1:11434")
-embed_model = OllamaEmbeddings(model="llama3", base_url="http://127.0.0.1:11434")
+embed_model = OllamaEmbeddings(model="llama3.2-vision", base_url="http://127.0.0.1:11434")
 
 # Text splitting and vector store setup
 text = """
@@ -41,6 +41,7 @@ text = """
 
 Nie pisz zdań informujących o twoim kontekście i podanych ci wiadomościach. Przejdź od razu do podawania instrukcji w krokach numerycznych.
 Tłumacz jak bardzo młodemu dziecku.
+NIGDY nie podawaj przykładów i NIGDY nie pisz rzeczy zbędnych poza instrukcją.
 """
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=128)
