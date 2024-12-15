@@ -1,4 +1,4 @@
-import { Animated, Easing, StyleSheet, Text, Image } from "react-native";
+import { Animated, Easing, StyleSheet, Text, Image, Alert} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Overlay } from "@rneui/base";
 import { View } from "react-native";
@@ -6,7 +6,13 @@ import { Mic } from "lucide-react-native";
 import { ScrollView } from "react-native";
 
 const Widget = () => {
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  // WebSocket
+  const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
+  const [username, setUsername] = useState('l');
+  const [password, setPassword] = useState('a');
+  const [message, setMessage] = useState('post_start');
+  const [isConnected, setIsConnected] = useState(false);
+  // Websocket
   const [loading, setLoading] = useState(false);
   const [mic, setMic] = useState(false);
   const [text, setText] = useState("");
@@ -89,6 +95,19 @@ const Widget = () => {
     );
   };
 
+
+  useEffect(()=>{
+    connectWebSocket();
+  },[])
+
+  useEffect(() => {
+    return () => {
+      if (webSocket) {
+        webSocket.close();
+      }
+    };
+  }, [webSocket]);
+
   function sendRequest(prompt: string) {
     const url = "http://192.168.7.145:8008/query";
 
@@ -118,26 +137,65 @@ const Widget = () => {
       });
   }
 
-  useEffect(() => {
-    // Create a new WebSocket.
-    const ws = new WebSocket("wss://rafal.tail43fbf9.ts.net");
+  const connectWebSocket = () => {
+    if (!username) {
+      Alert.alert('Error', 'Username cannot be empty.');
+      return;
+    }
 
-    // Connection opened
+    if (password !== 'a') {
+      Alert.alert('Invalid Password', 'The password must be "a"');
+      return;
+    }
+
+    const ws = new WebSocket('wss://rafal.tail43fbf9.ts.net/');
+
     ws.onopen = () => {
-      console.log("Połączono z serwerem WebSocket");
-      ws.send("Hello from client!");
+      console.log('WebSocket connection opened.');
+      setIsConnected(true);
+      const data = {
+        peer: username,
+        action: 'new-peer',
+        message: {},
+      };
+      ws.send(JSON.stringify(data));
     };
 
-    // Listen for messages
     ws.onmessage = (event) => {
-      console.log("Otrzymano wiadomość z serwera WebSocket:", event.data);
+      console.log('Message received from server:', event.data);
     };
 
-    setSocket(ws);
-    return () => {
-      ws.close();
+    ws.onclose = () => {
+      console.log('WebSocket connection closed.');
+      setIsConnected(false);
+      setWebSocket(null);
     };
-  }, []);
+
+    ws.onerror = (error) => {
+      console.log('WebSocket error:', error);
+      Alert.alert('WebSocket Error', 'Failed to connect.');
+    };
+
+    setWebSocket(ws);
+  };
+
+  const sendMessage = () => {
+    if (webSocket && isConnected) {
+      const data = {
+        peer: username,
+        action: 'send-message',
+        message: {
+          content: message,
+        },
+      };
+      webSocket.send(JSON.stringify(data));
+      console.log('Message sent:', data);
+      setMessage('');
+    } else {
+      Alert.alert('Error', 'WebSocket is not connected.');
+    }
+  };
+
 
   return (
     <>
@@ -163,6 +221,8 @@ const Widget = () => {
           onPress={async () => {
             setMic(!mic);
             if (mic) {
+              sendMessage()
+              setMessage('post_start');
               // start listening
               setLoading(true);
               await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -176,6 +236,8 @@ const Widget = () => {
               }
             } else {
               // stop listening
+              sendMessage();
+              setMessage('post_end');
               setLoading(false);
             }
           }}
