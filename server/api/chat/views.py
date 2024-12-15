@@ -1,8 +1,10 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, HttpResponse
 import json
+import os
 import requests
+import base64
 
 # Główna strona
 def main_view(request):
@@ -40,4 +42,27 @@ def api_generate_view(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     # Jeśli metoda nie jest POST, zwróć błąd
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+# Ścieżka do katalogu z obrazami (przykład)
+IMAGE_DIRECTORY = os.path.join(os.path.dirname(__file__), 'images')
+
+@csrf_exempt
+def api_generate_image_view(request):
+    if request.method == "GET":
+        try:
+            # Przykład: Pobranie konkretnego pliku obrazu
+            image_path = os.path.join(IMAGE_DIRECTORY, 'gruszka.jpg')
+
+            # Sprawdzenie, czy plik istnieje
+            if not os.path.exists(image_path):
+                return JsonResponse({"error": "Image not found"}, status=404)
+
+            # Zwrócenie pliku jako odpowiedzi
+            return FileResponse(open(image_path, 'rb'), content_type='image/jpeg')
+        except Exception as e:
+            # Obsługa wyjątków
+            return JsonResponse({"error": str(e)}, status=500)
+
+    # Jeśli metoda nie jest GET, zwróć błąd
     return JsonResponse({"error": "Invalid request method"}, status=400)

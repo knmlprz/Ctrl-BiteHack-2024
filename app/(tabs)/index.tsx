@@ -1,148 +1,142 @@
-import { StyleSheet } from "react-native";
-import React, { useState } from "react";
-import { Button, Overlay } from "@rneui/base";
-import { View } from "react-native";
-import { LifeBuoy } from "lucide-react-native";
-import { Mic } from "lucide-react-native";
-import { Smartphone } from "lucide-react-native";
-import { Camera } from "lucide-react-native";
+import React, { useState, useEffect } from 'react';
+import { Button, TextInput, View, Text, StyleSheet, Alert } from 'react-native';
 
-const Widget = () => {
-  const [visible, setVisible] = useState(false);
-  const [mic, setMic] = useState(false);
+const WebSocketScreen = () => {
+  const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
 
-  function sendRequest(prompt: string) {
-    const url = 'http://192.168.7.64:8080/api/generate';
-  
-    const data = {
-      model: 'wnuczek',
-      prompt: prompt,
-      stream: false,
+  useEffect(() => {
+    return () => {
+      if (webSocket) {
+        webSocket.close();
+      }
     };
-  
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data.response);
-      })
-      .catch((error) => {
-        console.error(`Error: ${error.message}`);
-      });
-  }
-  
+  }, [webSocket]);
+
+  const connectWebSocket = () => {
+    if (!username) {
+      Alert.alert('Error', 'Username cannot be empty.');
+      return;
+    }
+
+    if (password !== 'a') {
+      Alert.alert('Invalid Password', 'The password must be "a"');
+      return;
+    }
+
+    const ws = new WebSocket('wss://rafal.tail43fbf9.ts.net/');
+
+    ws.onopen = () => {
+      console.log('WebSocket connection opened.');
+      setIsConnected(true);
+      const data = {
+        peer: username,
+        action: 'new-peer',
+        message: {},
+      };
+      ws.send(JSON.stringify(data));
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Message received from server:', event.data);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed.');
+      setIsConnected(false);
+      setWebSocket(null);
+    };
+
+    ws.onerror = (error) => {
+      console.log('WebSocket error:', error);
+      Alert.alert('WebSocket Error', 'Failed to connect.');
+    };
+
+    setWebSocket(ws);
+  };
+
+  const sendMessage = () => {
+    if (webSocket && isConnected) {
+      const data = {
+        peer: username,
+        action: 'send-message',
+        message: {
+          content: message,
+        },
+      };
+      webSocket.send(JSON.stringify(data));
+      console.log('Message sent:', data);
+      setMessage('');
+    } else {
+      Alert.alert('Error', 'WebSocket is not connected.');
+    }
+  };
 
   return (
-    <>
-      <View
-        style={{
-          flex: 1,
-          marginTop: 50,
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-          backgroundColor: "transparent",
-        }}
-      >
-        <Button
-          buttonStyle={{
-            width: 50,
-            height: 50,
-            borderRadius: 25,
-            marginLeft: 10,
-          }}
-          onPress={() => setVisible(true)}
-        >
-          <LifeBuoy color="white" size={23} />
-        </Button>
-      </View>
-      <Overlay
-        overlayStyle={styles.widget}
-        isVisible={visible}
-        onBackdropPress={() => {
-          setVisible(false);
-          setMic(false);
-        }}
-        backdropStyle={{ backgroundColor: "transparent" }}
-      >
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            gap: 10,
-            backgroundColor: "transparent",
-          }}
-        >
-          <Button
-          style={styles.button}
-          buttonStyle={{
-            backgroundColor: mic ? "green" : "blue",
-            borderRadius: "100%",
-          }}
-          onPress={() => {
-            const newMicState = !mic;
-            setMic(newMicState);
-
-            if (newMicState) {
-              console.log("włączono");
-              // sendRequest("Start recording audio");
-            } else {
-              console.log("wyłączono");
-              sendRequest("How to start recording audio");
-            }
-          }}
-        >
-          <Mic color="white" size={23} />
-        </Button>
-
-          <Button
-            style={styles.button}
-            buttonStyle={styles.buttonStyle}
-            onPress={() => {
-              console.log("Smartphone button pressed");
-            }}
-          >
-            <Smartphone color="white" size={23} />
-          </Button>
-          <Button
-            style={styles.button}
-            buttonStyle={styles.buttonStyle}
-            onPress={() => {
-              console.log("Camera button pressed");
-            }}
-          >
-            <Camera color="white" size={23} />
-          </Button>
+    <View style={styles.container}>
+      {!isConnected ? (
+        <View>
+          <Text style={styles.label}>Username:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter username"
+            value={username}
+            onChangeText={setUsername}
+          />
+          <Text style={styles.label}>Password:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter password"
+            value={password}
+            secureTextEntry
+            onChangeText={setPassword}
+          />
+          <Button title="Connect" onPress={connectWebSocket} />
         </View>
-      </Overlay>
-    </>
+      ) : (
+        <View>
+          <Text style={styles.connectedText}>Connected as {username}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message"
+            value={message}
+            onChangeText={setMessage}
+          />
+          <Button title="Send Message" onPress={sendMessage} />
+        </View>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    width: 50,
-    height: 50,
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
   },
-  buttonStyle: {
-    backgroundColor: "blue",
-    borderRadius: "100%",
+  label: {
+    marginBottom: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  widget: {
-    top: 0,
-    left: 0,
-    backgroundColor: "transparent",
-    shadowColor: "transparent",
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  connectedText: {
+    marginBottom: 15,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'green',
   },
 });
 
-export default Widget;
+export default WebSocketScreen;
