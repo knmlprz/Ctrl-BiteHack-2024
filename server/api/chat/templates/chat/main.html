@@ -102,49 +102,6 @@
             <button id="sendRequest">Start Speech Recognition</button>
             <button id="stop-record-btn" disabled>Zatrzymaj nagrywanie</button>
             <button id="btn-rover-control">Włącz sterowanie łazikiem</button>
-            <button id="sendRequestButton">Send Request</button>
-            <script>
-                // API POST Request to communicate with local LLM model
-                function sendRequest(prompt) {
-                const url = 'http://localhost:8080/api/generate';
-
-                const selectedVehicle = "rover";
-
-                const data = {
-                    model: 'wnuczek',
-                    prompt: prompt,
-                    stream: false,
-                };
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                    'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                })
-                    .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                    })
-                    .then((data) => {
-                        console.log(data.response);
-                    })
-                    .catch((error) => {
-                    console.error(`Error: ${error.message}`);
-                    });
-                }
-
-
-                // Add event listener to the button
-                document.getElementById('sendRequestButton').addEventListener('click', function() {
-                const prompt = "napisz krótką instrukcje prania"; // Example prompt
-                sendRequest(prompt);
-                });
-            </script>
-            </script>
 
             <div>
                 <p id="recording-status"></p>
