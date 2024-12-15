@@ -23,5 +23,3 @@ async def query_llm(request: QueryRequest):
         return {"answer": response['answer']}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# Run using `uvicorn app:app --reload`

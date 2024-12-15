@@ -40,6 +40,7 @@ text = """
    - Tworzenie przewodników krok po kroku na podstawie dostarczonych danych tekstowych lub wizualnych.
 
 Nie pisz zdań informujących o twoim kontekście i podanych ci wiadomościach. Przejdź od razu do podawania instrukcji w krokach numerycznych.
+Tłumacz jak bardzo młodemu dziecku.
 """
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=128)
