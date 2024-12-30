@@ -18,7 +18,7 @@ def api_generate_view(request):
             # Pobranie danych przesłanych w żądaniu POST
             data = json.loads(request.body)  # Parsowanie JSON z ciała żądania
             # Zdefiniowanie endpointu, na który dane będą wysyłane
-            external_url = "http://192.168.7.145:8000/api/generate"
+            external_url = "http://localhost:11434/api/generate"
 
             # Wyślij dane za pomocą metody POST do zewnętrznego endpointu
             response = requests.post(
@@ -35,6 +35,21 @@ def api_generate_view(request):
                     {"error": f"External server responded with status {response.status_code}"},
                     status=response.status_code,
                 )
+        except Exception as e:
+            # Obsługa wyjątków i zwrócenie błędu
+            return JsonResponse({"error": str(e)}, status=500)
+
+    # Jeśli metoda nie jest POST, zwróć błąd
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def api_generate_audio(request):
+    if request.method == "POST":
+        try:
+            # Pobranie danych przesłanych w żądaniu POST
+            data = json.loads(request.body)  # Parsowanie JSON z ciała żądania
+            # Zdefiniowanie endpointu, na który dane będą wysyłane
+            return JsonResponse(data)
         except Exception as e:
             # Obsługa wyjątków i zwrócenie błędu
             return JsonResponse({"error": str(e)}, status=500)

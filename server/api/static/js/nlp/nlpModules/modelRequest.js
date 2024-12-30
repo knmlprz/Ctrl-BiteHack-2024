@@ -1,11 +1,11 @@
 // API POST Request to communicate with local LLM model
 export function sendRequest(prompt) {
-  const url = 'http://192.168.7.145:8000/api/generate';
+  const url = 'https://rafal.tail43fbf9.ts.net/api/generate';
 
   const selectedVehicle = "rover"
 
   const data = {
-    model: 'wnuczek',
+    model: 'wsrc_nlp',
     prompt: prompt,
     stream: false,
   };

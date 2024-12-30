@@ -1,3 +1,22 @@
+<<<<<<< HEAD
+import React, { useState, useEffect } from 'react';
+import { Button, TextInput, View, Text, StyleSheet, Alert } from 'react-native';
+
+const WebSocketScreen = () => {
+  const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (webSocket) {
+        webSocket.close();
+      }
+    };
+  }, [webSocket]);
+=======
 import { Animated, Easing, StyleSheet, Text, Image, Alert} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Overlay } from "@rneui/base";
@@ -136,6 +155,7 @@ const Widget = () => {
         console.error(`Error: ${error.message}`);
       });
   }
+>>>>>>> origin/main
 
   const connectWebSocket = () => {
     if (!username) {
@@ -195,6 +215,43 @@ const Widget = () => {
       Alert.alert('Error', 'WebSocket is not connected.');
     }
   };
+<<<<<<< HEAD
+
+  return (
+    <View style={styles.container}>
+      {!isConnected ? (
+        <View>
+          <Text style={styles.label}>Username:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter username"
+            value={username}
+            onChangeText={setUsername}
+          />
+          <Text style={styles.label}>Password:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter password"
+            value={password}
+            secureTextEntry
+            onChangeText={setPassword}
+          />
+          <Button title="Connect" onPress={connectWebSocket} />
+        </View>
+      ) : (
+        <View>
+          <Text style={styles.connectedText}>Connected as {username}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message"
+            value={message}
+            onChangeText={setMessage}
+          />
+          <Button title="Send Message" onPress={sendMessage} />
+        </View>
+      )}
+    </View>
+=======
 
 
   return (
@@ -288,18 +345,36 @@ const Widget = () => {
         }}
       />
     </>
+>>>>>>> origin/main
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    width: 50,
-    height: 50,
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
   },
-  buttonStyle: {
-    backgroundColor: "blue",
-    borderRadius: "100%",
+  label: {
+    marginBottom: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
+<<<<<<< HEAD
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  connectedText: {
+    marginBottom: 15,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'green',
+=======
   widget: {
     top: 0,
     left: 0,
@@ -324,7 +399,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignSelf: "center",
     padding: 20,
+>>>>>>> origin/main
   },
 });
 
-export default Widget;
+export default WebSocketScreen;

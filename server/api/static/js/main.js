@@ -10,9 +10,57 @@ var title = document.querySelector('.title');
 
 var username;
 var webSocket;
+var glob;
+var startRecordBtn2 = document.querySelector('#start-record-btn');
+var startRecordBtn3 = document.querySelector('#stop-record-btn');
 
+function sendR(prompt) {
+    const url = "https://5fe8-37-31-36-99.ngrok-free.app/query";
+    console.log("sendR sie wysłał")
+    const data = {
+      input: prompt,
+    };
+
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      credentials: 'include',
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+            console.log("error");
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        setText(data.answer);
+      })
+      .catch((error) => {
+        console.log("error");
+      });
+  }
+  
 function webSocketOnMessage(event) {
+    console.log(event.data)
     var parsedData = JSON.parse(event.data);
+    console.log(parsedData.message.content);
+
+    if(parsedData.message.content == "post_start"){
+        startRecordBtn2.click();
+        // API POST Request to communicate with local LLM model
+        sendR("jak wysłać maila")
+
+    }
+    else if(parsedData.message.content == "post_end"){
+        startRecordBtn3.click();
+
+    }
+
+    glob = parsedData.message.content;
 
     var peerUsername = parsedData['peer'];
     var action = parsedData['action'];
@@ -387,6 +435,7 @@ function addLocalTracks(peer){
     return;
 }
 
+
 function dcOnMessage(event){
     console.log("Received message: ", event.data);  // Dodaj to dla sprawdzenia co jest odbierane.
     var data = JSON.parse(event.data);
@@ -400,6 +449,15 @@ function dcOnMessage(event){
     }
     else if(message == "move-backward"){
         console.log("wysłane dane do robota: ", message);
+    }
+    else if(message == "post_start" || glob == "post_start"){
+        startRecordBtn2.click();
+        console.log("start_posted")
+        console.log("to jest glob", glob)
+    }
+    else if(message == "post_end"){
+        startRecordBtn3.click();
+        console.log("end_posted")
     }
     else{
         var li = document.createElement('li');
