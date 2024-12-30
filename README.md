@@ -1,5 +1,9 @@
-# Welcome to your Expo app 👋
+![Python Badge](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![React Badge](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![Web Speech API Badge](https://img.shields.io/badge/Web%20Speech%20API-008080?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.0.0-green)
 
+<<<<<<< HEAD
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
@@ -52,3 +56,7 @@ Join our community of developers creating universal apps.
 ###
 klick "a" to open new phone
 klick "r" to refresh phone
+=======
+# Twój Wnuczek - demo
+Aplikacja wspomagana sztuczną inteligencją, która mówi prostym językiem i ułatwia życie.
+>>>>>>> origin/main
