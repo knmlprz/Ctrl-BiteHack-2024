@@ -49,7 +49,7 @@ ros2 topic pub /diff_drive_controller_left/cmd_vel_unstamped geometry_msgs/msg/T
 10. controlling rover teleop
 
 ```
-cd TrailblazerML/
+cd ~/TrailblazerML/
 source install/setup.bash
 
 ros2 launch rover_teleop_twist_joy teleop_twist_launch.py
@@ -81,5 +81,13 @@ ros2 launch gazebo_viz rsp.launch.py
 14. setup gazebo 
 ```
 cd ~/.gazebo/models/gazebo_viz 
+ros2 launch gazebo_viz launch_sim.launch.py 
+```
+
+15. testing gazebo
+```
+cd ~/TrailblazerML/
+source install/setup.bash
+
 ros2 launch gazebo_viz launch_sim.launch.py 
 ```
